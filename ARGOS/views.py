@@ -12,7 +12,8 @@ from PIL import Image
 from deepface import DeepFace
 from ARGOS import app, MODEL_NAME, DETECTOR_BACKEND, VERIFICATION_THRESHOLD
 from ARGOS.logger import logger, log_request, log_response, log_error, log_model_operation
-from ARGOS.api_client import api_client
+from ARGOS.api_client import api_client, IcarusApiUnavailableError
+from ARGOS.decorators import api_route
 from functools import lru_cache
 from threading import Lock
 
@@ -105,290 +106,249 @@ def health_check():
 
 
 @app.route("/api/extract-embedding", methods=["POST"])
-def extract_embedding():
+@api_route(required_fields=["image"], error_extra={"face_detected": False})
+def extract_embedding(data, start_time):
     """
     Extract facial embedding from an image.
-    
+
     Request: { "image": "base64_encoded_image" }
     Response: { "success": true, "embedding": [...], "face_detected": true }
     """
-    start_time = time.time()
-    log_request("/api/extract-embedding", request.get_json())
-    
-    try:
-        data = request.get_json()
-        
-        if not data or "image" not in data:
-            log_response("/api/extract-embedding", False, "Missing 'image' field")
-            return jsonify({"success": False, "error": "Missing 'image' field"}), 400
-        
-        image_array = decode_base64_image(data["image"])
-        logger.debug(f"Image decoded: shape={image_array.shape}")
-        
-        log_model_operation("represent", MODEL_NAME)
-        embeddings = DeepFace.represent(
-            img_path=image_array,
-            model_name=MODEL_NAME,
-            detector_backend=DETECTOR_BACKEND,
-            enforce_detection=True
-        )
-        
-        if not embeddings:
-            log_response("/api/extract-embedding", False, "No face detected")
-            return jsonify({"success": False, "error": "No face detected", "face_detected": False}), 400
-        
-        embedding = embeddings[0]["embedding"]
-        duration_ms = (time.time() - start_time) * 1000
-        
-        log_response("/api/extract-embedding", True, f"Embedding size: {len(embedding)}", duration_ms)
-        
-        return jsonify({
-            "success": True,
-            "embedding": embedding,
-            "face_detected": True,
-            "embedding_size": len(embedding)
-        })
-        
-    except Exception as e:
-        log_error("/api/extract-embedding", e)
-        return jsonify({"success": False, "error": str(e), "face_detected": False}), 500
+    image_array = decode_base64_image(data["image"])
+    logger.debug(f"Image decoded: shape={image_array.shape}")
+
+    log_model_operation("represent", MODEL_NAME)
+    embeddings = DeepFace.represent(
+        img_path=image_array,
+        model_name=MODEL_NAME,
+        detector_backend=DETECTOR_BACKEND,
+        enforce_detection=True
+    )
+
+    if not embeddings:
+        log_response("/api/extract-embedding", False, "No face detected")
+        return jsonify({"success": False, "error": "No face detected", "face_detected": False}), 400
+
+    embedding = embeddings[0]["embedding"]
+    duration_ms = (time.time() - start_time) * 1000
+
+    log_response("/api/extract-embedding", True, f"Embedding size: {len(embedding)}", duration_ms)
+
+    return jsonify({
+        "success": True,
+        "embedding": embedding,
+        "face_detected": True,
+        "embedding_size": len(embedding)
+    })
 
 
 @app.route("/api/verify", methods=["POST"])
-def verify_faces():
+@api_route(required_fields=["image1", "image2"])
+def verify_faces(data, start_time):
     """
     Verify if two faces belong to the same person.
-    
+
     Request: { "image1": "base64_1", "image2": "base64_2" }
     Response: { "success": true, "verified": true/false, "similarity_percent": float }
     """
-    start_time = time.time()
-    log_request("/api/verify")
-    
-    try:
-        data = request.get_json()
-        
-        if not data or "image1" not in data or "image2" not in data:
-            log_response("/api/verify", False, "Missing image fields")
-            return jsonify({"success": False, "error": "Missing image fields"}), 400
-        
-        img1 = decode_base64_image(data["image1"])
-        img2 = decode_base64_image(data["image2"])
-        
-        log_model_operation("verify", MODEL_NAME)
-        result = DeepFace.verify(
-            img1_path=img1,
-            img2_path=img2,
-            model_name=MODEL_NAME,
-            distance_metric="cosine",
-            detector_backend=DETECTOR_BACKEND,
-            enforce_detection=True
-        )
-        
-        distance = result["distance"]
-        verified = distance <= VERIFICATION_THRESHOLD
-        similarity = max(0, (1 - distance) * 100)
-        duration_ms = (time.time() - start_time) * 1000
-        
-        log_response("/api/verify", True, f"Verified: {verified}, Similarity: {similarity:.2f}%", duration_ms)
-        
-        return jsonify({
-            "success": True,
-            "verified": verified,
-            "distance": distance,
-            "threshold": VERIFICATION_THRESHOLD,
-            "similarity_percent": round(similarity, 2)
-        })
-        
-    except Exception as e:
-        log_error("/api/verify", e)
-        return jsonify({"success": False, "error": str(e)}), 500
+    img1 = decode_base64_image(data["image1"])
+    img2 = decode_base64_image(data["image2"])
+
+    log_model_operation("verify", MODEL_NAME)
+    result = DeepFace.verify(
+        img1_path=img1,
+        img2_path=img2,
+        model_name=MODEL_NAME,
+        distance_metric="cosine",
+        detector_backend=DETECTOR_BACKEND,
+        enforce_detection=True
+    )
+
+    distance = result["distance"]
+    verified = distance <= VERIFICATION_THRESHOLD
+    similarity = max(0, (1 - distance) * 100)
+    duration_ms = (time.time() - start_time) * 1000
+
+    log_response("/api/verify", True, f"Verified: {verified}, Similarity: {similarity:.2f}%", duration_ms)
+
+    return jsonify({
+        "success": True,
+        "verified": verified,
+        "distance": distance,
+        "threshold": VERIFICATION_THRESHOLD,
+        "similarity_percent": round(similarity, 2)
+    })
 
 
 @app.route("/api/identify", methods=["POST"])
-def identify_face():
+@api_route(required_fields=["image"], error_extra={"identified": False})
+def identify_face(data, start_time):
     """
     1:N Identification - Find matching face from stored embeddings.
-    
+
     Option 1 - With embeddings in request:
     {
         "image": "base64_encoded_image",
         "embeddings": [{"id": "worker_1", "embedding": [...]}],
         "threshold": 0.68 (optional)
     }
-    
+
     Option 2 - Fetch embeddings from ICARUS.API:
     {
         "image": "base64_encoded_image",
         "cliente_id": 1,
         "threshold": 0.68 (optional)
     }
-    
+
     Response: {
         "success": true,
         "identified": true/false,
         "match": { "id": "worker_1", "similarity_percent": 75.0 }
     }
     """
-    start_time = time.time()
-    log_request("/api/identify", request.get_json())
-    
-    try:
-        data = request.get_json()
-        
-        if not data or "image" not in data:
-            log_response("/api/identify", False, "Missing 'image' field")
-            return jsonify({"success": False, "error": "Missing 'image' field"}), 400
-        
-        threshold = data.get("threshold", VERIFICATION_THRESHOLD)
-        
-        # Get embeddings: either from request or from ICARUS.API
-        embeddings_list = data.get("embeddings")
-        
-        if not embeddings_list and "cliente_id" in data:
-            cliente_id = data["cliente_id"]
-            logger.info(f"Fetching embeddings for ClienteId: {cliente_id}")
+    threshold = data.get("threshold", VERIFICATION_THRESHOLD)
+
+    # Get embeddings: either from request or from ICARUS.API
+    embeddings_list = data.get("embeddings")
+
+    if not embeddings_list and "cliente_id" in data:
+        cliente_id = data["cliente_id"]
+        logger.info(f"Fetching embeddings for ClienteId: {cliente_id}")
+
+        try:
             embeddings_list = get_cached_embeddings(cliente_id)  # Use cache
-            
-            if not embeddings_list:
-                log_response("/api/identify", False, f"No embeddings found for ClienteId: {cliente_id}")
-                return jsonify({
-                    "success": False,
-                    "error": f"No registered workers found for cliente_id: {cliente_id}",
-                    "identified": False
-                }), 404
-        
-        if not embeddings_list:
-            log_response("/api/identify", False, "No embeddings provided")
+        except IcarusApiUnavailableError as e:
+            # Distinto de "0 trabajadores registrados": aqui el backend no respondio tras
+            # agotar los reintentos, no que el cliente no tenga trabajadores.
+            log_response("/api/identify", False, f"ICARUS.API no disponible: {e}")
             return jsonify({
-                "success": False, 
-                "error": "Either 'embeddings' or 'cliente_id' must be provided"
-            }), 400
-        
-        logger.info(f"Comparing against {len(embeddings_list)} stored embeddings")
-        
-        # Decode image and extract embedding
-        image_array = decode_base64_image(data["image"])
-        
-        log_model_operation("represent", MODEL_NAME)
-        probe_embeddings = DeepFace.represent(
-            img_path=image_array,
-            model_name=MODEL_NAME,
-            detector_backend=DETECTOR_BACKEND,
-            enforce_detection=True
-        )
-        
-        if not probe_embeddings:
-            log_response("/api/identify", False, "No face detected in probe image")
-            return jsonify({
-                "success": False, 
-                "error": "No face detected in probe image",
+                "success": False,
+                "error": "El backend ICARUS.API no esta disponible. Intente nuevamente.",
                 "identified": False
-            }), 400
-        
-        probe_embedding = np.array(probe_embeddings[0]["embedding"])
-        
-        # Find best match
-        best_match = None
-        best_distance = float("inf")
-        all_matches = []
-        
-        for candidate in embeddings_list:
-            candidate_embedding = np.array(candidate.get("embedding") or candidate.get("embeddingFacial"))
-            
-            if candidate_embedding is None or len(candidate_embedding) == 0:
-                continue
-            
-            distance = calculate_cosine_distance(probe_embedding, candidate_embedding)
-            similarity = max(0, (1 - distance) * 100)
-            
-            candidate_id = candidate.get("id") or candidate.get("trabajadorAccesoId")
-            all_matches.append({
-                "id": candidate_id,
-                "distance": round(distance, 4),
-                "similarity_percent": round(similarity, 2)
-            })
-            
-            if distance < best_distance:
-                best_distance = distance
-                best_match = candidate
-        
-        # Sort by similarity descending
-        all_matches.sort(key=lambda x: x["similarity_percent"], reverse=True)
-        
-        identified = bool(best_distance <= threshold)  # Convert numpy.bool_ to Python bool
-        similarity = float(max(0, (1 - best_distance) * 100))  # Convert to Python float
-        duration_ms = (time.time() - start_time) * 1000
-        
-        response = {
-            "success": True,
-            "identified": identified,
-            "threshold": threshold,
-            "candidates_count": len(embeddings_list)
+            }), 503
+
+        if not embeddings_list:
+            log_response("/api/identify", False, f"No embeddings found for ClienteId: {cliente_id}")
+            return jsonify({
+                "success": False,
+                "error": f"No registered workers found for cliente_id: {cliente_id}",
+                "identified": False
+            }), 404
+
+    if not embeddings_list:
+        log_response("/api/identify", False, "No embeddings provided")
+        return jsonify({
+            "success": False,
+            "error": "Either 'embeddings' or 'cliente_id' must be provided"
+        }), 400
+
+    logger.info(f"Comparing against {len(embeddings_list)} stored embeddings")
+
+    # Decode image and extract embedding
+    image_array = decode_base64_image(data["image"])
+
+    log_model_operation("represent", MODEL_NAME)
+    probe_embeddings = DeepFace.represent(
+        img_path=image_array,
+        model_name=MODEL_NAME,
+        detector_backend=DETECTOR_BACKEND,
+        enforce_detection=True
+    )
+
+    if not probe_embeddings:
+        log_response("/api/identify", False, "No face detected in probe image")
+        return jsonify({
+            "success": False,
+            "error": "No face detected in probe image",
+            "identified": False
+        }), 400
+
+    probe_embedding = np.array(probe_embeddings[0]["embedding"])
+
+    # Find best match
+    best_match = None
+    best_distance = float("inf")
+    all_matches = []
+
+    for candidate in embeddings_list:
+        candidate_embedding = np.array(candidate.get("embedding") or candidate.get("embeddingFacial"))
+
+        if candidate_embedding is None or len(candidate_embedding) == 0:
+            continue
+
+        distance = calculate_cosine_distance(probe_embedding, candidate_embedding)
+        similarity = max(0, (1 - distance) * 100)
+
+        candidate_id = candidate.get("id") or candidate.get("trabajadorAccesoId")
+        all_matches.append({
+            "id": candidate_id,
+            "distance": round(distance, 4),
+            "similarity_percent": round(similarity, 2)
+        })
+
+        if distance < best_distance:
+            best_distance = distance
+            best_match = candidate
+
+    # Sort by similarity descending
+    all_matches.sort(key=lambda x: x["similarity_percent"], reverse=True)
+
+    identified = bool(best_distance <= threshold)  # Convert numpy.bool_ to Python bool
+    similarity = float(max(0, (1 - best_distance) * 100))  # Convert to Python float
+    duration_ms = (time.time() - start_time) * 1000
+
+    response = {
+        "success": True,
+        "identified": identified,
+        "threshold": threshold,
+        "candidates_count": len(embeddings_list)
+    }
+
+    if best_match:
+        match_id = best_match.get("id") or best_match.get("trabajadorAccesoId")
+        trabajador_id = best_match.get("trabajadorId")
+
+        response["match"] = {
+            "id": int(match_id) if match_id is not None else None,
+            "trabajador_id": int(trabajador_id) if trabajador_id is not None else None,
+            "distance": float(round(best_distance, 4)),
+            "similarity_percent": float(round(similarity, 2))
         }
-        
-        if best_match:
-            match_id = best_match.get("id") or best_match.get("trabajadorAccesoId")
-            trabajador_id = best_match.get("trabajadorId")
-            
-            response["match"] = {
-                "id": int(match_id) if match_id is not None else None,
-                "trabajador_id": int(trabajador_id) if trabajador_id is not None else None,
-                "distance": float(round(best_distance, 4)),
-                "similarity_percent": float(round(similarity, 2))
-            }
-            
-            # Include top 3 matches for debugging
-            response["top_matches"] = all_matches[:3]
-        
-        log_response("/api/identify", identified, 
-                    f"Identified: {identified}, Best similarity: {similarity:.2f}%", duration_ms)
-        
-        return jsonify(response)
-        
-    except Exception as e:
-        log_error("/api/identify", e)
-        return jsonify({"success": False, "error": str(e), "identified": False}), 500
+
+        # Include top 3 matches for debugging
+        response["top_matches"] = all_matches[:3]
+
+    log_response("/api/identify", identified,
+                f"Identified: {identified}, Best similarity: {similarity:.2f}%", duration_ms)
+
+    return jsonify(response)
 
 
 @app.route("/api/compare-embeddings", methods=["POST"])
-def compare_embeddings():
+@api_route(required_fields=["embedding1", "embedding2"])
+def compare_embeddings(data, start_time):
     """
     Compare two pre-computed embeddings directly.
-    
+
     Request: { "embedding1": [...], "embedding2": [...] }
     Response: { "success": true, "verified": true/false, "similarity_percent": float }
     """
-    start_time = time.time()
-    log_request("/api/compare-embeddings")
-    
-    try:
-        data = request.get_json()
-        
-        if not data or "embedding1" not in data or "embedding2" not in data:
-            log_response("/api/compare-embeddings", False, "Missing embedding fields")
-            return jsonify({"success": False, "error": "Missing embedding fields"}), 400
-        
-        threshold = data.get("threshold", VERIFICATION_THRESHOLD)
-        
-        emb1 = np.array(data["embedding1"])
-        emb2 = np.array(data["embedding2"])
-        
-        distance = calculate_cosine_distance(emb1, emb2)
-        verified = bool(distance <= threshold)  # Convert numpy.bool_ to Python bool
-        similarity = float(max(0, (1 - distance) * 100))  # Convert to Python float
-        
-        duration_ms = (time.time() - start_time) * 1000
-        log_response("/api/compare-embeddings", True, f"Similarity: {similarity:.2f}%", duration_ms)
-        
-        return jsonify({
-            "success": True,
-            "verified": verified,
-            "distance": float(round(distance, 4)),
-            "threshold": float(threshold),
-            "similarity_percent": float(round(similarity, 2))
-        })
-        
-    except Exception as e:
-        log_error("/api/compare-embeddings", e)
-        return jsonify({"success": False, "error": str(e)}), 500
+    threshold = data.get("threshold", VERIFICATION_THRESHOLD)
+
+    emb1 = np.array(data["embedding1"])
+    emb2 = np.array(data["embedding2"])
+
+    distance = calculate_cosine_distance(emb1, emb2)
+    verified = bool(distance <= threshold)  # Convert numpy.bool_ to Python bool
+    similarity = float(max(0, (1 - distance) * 100))  # Convert to Python float
+
+    duration_ms = (time.time() - start_time) * 1000
+    log_response("/api/compare-embeddings", True, f"Similarity: {similarity:.2f}%", duration_ms)
+
+    return jsonify({
+        "success": True,
+        "verified": verified,
+        "distance": float(round(distance, 4)),
+        "threshold": float(threshold),
+        "similarity_percent": float(round(similarity, 2))
+    })
