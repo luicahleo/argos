@@ -1,0 +1,105 @@
+# .github/workflows/deploy-argos.yml
+# GitHub Actions workflow to deploy ARGOS microservice to VPS
+
+name: Deploy ARGOS to Production
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  deploy-argos:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Configurar SSH
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+    - name: Agregar host conocido
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Crear estructura de directorios en VPS
+      run: |
+        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+          "mkdir -p /var/apps/icarus/microservicios/argos/{logs,ARGOS}"
+
+    - name: Subir archivos al VPS
+      run: |
+        rsync -avz --delete \
+          --exclude='env/' \
+          --exclude='env_new/' \
+          --exclude='__pycache__/' \
+          --exclude='*.pyc' \
+          --exclude='.git/' \
+          --exclude='logs/*.log' \
+          ./ \
+          ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/apps/icarus/microservicios/argos/
+
+    - name: Build y deploy ARGOS en VPS
+      run: |
+        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
+          cd /var/apps/icarus/microservicios/argos &&
+          docker stop argos 2>/dev/null || true &&
+          docker rm argos 2>/dev/null || true &&
+          docker rmi argos:latest 2>/dev/null || true &&
+          echo "Preparing logs directory..." &&
+          mkdir -p logs &&
+          sudo chown -R 1000:1000 logs &&
+          sudo chmod -R 755 logs &&
+          echo "Building ARGOS Docker image..." &&
+          docker build --no-cache -f Dockerfile -t argos:latest . &&
+          echo "Starting ARGOS container..." &&
+          docker run -d \
+            --name argos \
+            --network trajano-shared-network \
+            --restart unless-stopped \
+            --env-file .env.production \
+            -v $(pwd)/logs:/app/logs \
+            argos:latest &&
+          echo "Waiting 120 seconds for container initialization..." &&
+          sleep 120 &&
+          echo "Starting health checks..." &&
+          for i in {1..120}; do
+            sleep 2
+            HTTP_CODE=$(docker exec argos curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health 2>/dev/null || echo "000")
+            echo "DEBUG: HTTP_CODE = [$HTTP_CODE] en intento $i"
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "ARGOS is healthy! (HTTP $HTTP_CODE)" &&
+              break
+            fi
+            if [ $i -eq 120 ]; then
+              echo "ARGOS failed to become healthy after 6 minutes" &&
+              docker logs argos --tail 100 &&
+              exit 1
+            fi
+            echo "Attempt $i/120: Waiting for ARGOS..."
+          done &&
+          echo "ARGOS Status:" &&
+          docker ps | grep argos &&
+          echo "ARGOS deployed successfully!"
+        '
+
+    - name: Notification on success
+      if: success()
+      run: |
+        echo "✅ ARGOS microservice deployed successfully to production!"
+        echo "Health check: http://argos:5000/health (internal Docker network)"
+
+    - name: Notification on failure
+      if: failure()
+      run: |
+        echo "❌ ARGOS deployment failed. Check logs above."
+        exit 1

@@ -1,0 +1,21 @@
+# ARGOS Face Recognition Microservice
+# Core Dependencies
+
+# Web Framework
+Flask>=2.2.3
+flask-cors>=4.0.0
+
+# DeepFace for Facial Recognition
+deepface>=0.0.79
+tf-keras>=2.15.0
+
+# Image Processing
+opencv-python>=4.8.0
+numpy>=1.24.0
+pillow>=10.0.0
+
+# HTTP Client for ICARUS.API
+requests>=2.28.0
+
+# Utilities
+python-dotenv>=1.0.0

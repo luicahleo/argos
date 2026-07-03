@@ -1,0 +1,15 @@
+para ejecutar argos
+
+.\env\Scripts\activate; python runserver.py
+
+
+
+# Matar todos los procesos de Python
+taskkill /F /IM python.exe
+
+# Luego iniciar ARGOS
+cd C:\Users\desarrollo\source\repos\NETCORE\ICARUS\MICROSERVICIOS\ARGOS
+.\env\Scripts\activate
+python runserver.py
+
+curl http://localhost:5000/health

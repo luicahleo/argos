@@ -1,0 +1,17 @@
+# Python Virtual Environments
+env/
+env_new/
+venv/
+.env
+
+# Compiled / cache
+*.pyc
+__pycache__/
+.pytest_cache/
+
+# Base de datos local
+db.sqlite3
+
+# Logs
+logs/
+*.log
