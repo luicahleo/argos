@@ -1,0 +1,584 @@
+{
+  "communities": {
+    "0": [
+      "argos_static_scripts_jquery_1_10_2_min",
+      "argos_static_scripts_jquery_1_10_2_min_an",
+      "argos_static_scripts_jquery_1_10_2_min_at",
+      "argos_static_scripts_jquery_1_10_2_min_bt",
+      "argos_static_scripts_jquery_1_10_2_min_ct",
+      "argos_static_scripts_jquery_1_10_2_min_dt",
+      "argos_static_scripts_jquery_1_10_2_min_er",
+      "argos_static_scripts_jquery_1_10_2_min_f",
+      "argos_static_scripts_jquery_1_10_2_min_ft",
+      "argos_static_scripts_jquery_1_10_2_min_gn",
+      "argos_static_scripts_jquery_1_10_2_min_gt",
+      "argos_static_scripts_jquery_1_10_2_min_hn",
+      "argos_static_scripts_jquery_1_10_2_min_ht",
+      "argos_static_scripts_jquery_1_10_2_min_i",
+      "argos_static_scripts_jquery_1_10_2_min_in",
+      "argos_static_scripts_jquery_1_10_2_min_ir",
+      "argos_static_scripts_jquery_1_10_2_min_it",
+      "argos_static_scripts_jquery_1_10_2_min_k",
+      "argos_static_scripts_jquery_1_10_2_min_kn",
+      "argos_static_scripts_jquery_1_10_2_min_kt",
+      "argos_static_scripts_jquery_1_10_2_min_ln",
+      "argos_static_scripts_jquery_1_10_2_min_lt",
+      "argos_static_scripts_jquery_1_10_2_min_m",
+      "argos_static_scripts_jquery_1_10_2_min_mn",
+      "argos_static_scripts_jquery_1_10_2_min_mt",
+      "argos_static_scripts_jquery_1_10_2_min_n",
+      "argos_static_scripts_jquery_1_10_2_min_nn",
+      "argos_static_scripts_jquery_1_10_2_min_nr",
+      "argos_static_scripts_jquery_1_10_2_min_nt",
+      "argos_static_scripts_jquery_1_10_2_min_on",
+      "argos_static_scripts_jquery_1_10_2_min_or",
+      "argos_static_scripts_jquery_1_10_2_min_ot",
+      "argos_static_scripts_jquery_1_10_2_min_pt",
+      "argos_static_scripts_jquery_1_10_2_min_qn",
+      "argos_static_scripts_jquery_1_10_2_min_qt",
+      "argos_static_scripts_jquery_1_10_2_min_r",
+      "argos_static_scripts_jquery_1_10_2_min_rn",
+      "argos_static_scripts_jquery_1_10_2_min_rr",
+      "argos_static_scripts_jquery_1_10_2_min_sn",
+      "argos_static_scripts_jquery_1_10_2_min_st",
+      "argos_static_scripts_jquery_1_10_2_min_t",
+      "argos_static_scripts_jquery_1_10_2_min_tn",
+      "argos_static_scripts_jquery_1_10_2_min_tr",
+      "argos_static_scripts_jquery_1_10_2_min_tt",
+      "argos_static_scripts_jquery_1_10_2_min_un",
+      "argos_static_scripts_jquery_1_10_2_min_ut",
+      "argos_static_scripts_jquery_1_10_2_min_vt",
+      "argos_static_scripts_jquery_1_10_2_min_w",
+      "argos_static_scripts_jquery_1_10_2_min_wt",
+      "argos_static_scripts_jquery_1_10_2_min_xt",
+      "argos_static_scripts_jquery_1_10_2_min_yt",
+      "argos_static_scripts_jquery_1_10_2_min_zn",
+      "argos_static_scripts_jquery_1_10_2_winnow",
+      "argos_static_scripts_jquery_validate_min",
+      "argos_static_scripts_jquery_validate_min_e",
+      "argos_static_scripts_jquery_validate_min_s",
+      "argos_static_scripts_jquery_validate_unobtrusive_min",
+      "argos_static_scripts_jquery_validate_unobtrusive_min_c",
+      "argos_static_scripts_jquery_validate_unobtrusive_min_f",
+      "argos_static_scripts_jquery_validate_unobtrusive_min_g",
+      "argos_static_scripts_jquery_validate_unobtrusive_min_h",
+      "argos_static_scripts_jquery_validate_unobtrusive_min_i",
+      "argos_static_scripts_jquery_validate_unobtrusive_min_j",
+      "argos_static_scripts_jquery_validate_unobtrusive_min_k",
+      "argos_static_scripts_jquery_validate_unobtrusive_min_l",
+      "argos_static_scripts_jquery_validate_unobtrusive_min_m",
+      "argos_static_scripts_jquery_validate_unobtrusive_min_n",
+      "argos_static_scripts_respond_min",
+      "argos_static_scripts_respond_min_t"
+    ],
+    "1": [
+      "any",
+      "argos_api_client",
+      "argos_api_client_icarusapiclient",
+      "argos_api_client_icarusapiclient_get_embeddings_by_cliente",
+      "argos_api_client_icarusapiclient_health_check",
+      "argos_api_client_icarusapiclient_init",
+      "argos_api_client_icarusapiunavailableerror",
+      "argos_api_client_py_exception",
+      "argos_api_client_rationale_1",
+      "argos_api_client_rationale_20",
+      "argos_api_client_rationale_29",
+      "argos_api_client_rationale_55",
+      "argos_api_client_rationale_89",
+      "argos_decorators",
+      "argos_decorators_api_route",
+      "argos_decorators_rationale_1",
+      "argos_decorators_rationale_15",
+      "argos_init",
+      "argos_init_rationale_1",
+      "argos_logger",
+      "argos_logger_log_error",
+      "argos_logger_log_model_operation",
+      "argos_logger_log_request",
+      "argos_logger_log_response",
+      "argos_logger_py_exception",
+      "argos_logger_rationale_1",
+      "argos_logger_rationale_108",
+      "argos_logger_rationale_116",
+      "argos_logger_rationale_80",
+      "argos_views",
+      "argos_views_calculate_cosine_distance",
+      "argos_views_compare_embeddings",
+      "argos_views_decode_base64_image",
+      "argos_views_extract_embedding",
+      "argos_views_get_cached_embeddings",
+      "argos_views_health_check",
+      "argos_views_identify_face",
+      "argos_views_invalidate_cache",
+      "argos_views_rationale_1",
+      "argos_views_rationale_111",
+      "argos_views_rationale_148",
+      "argos_views_rationale_186",
+      "argos_views_rationale_29",
+      "argos_views_rationale_330",
+      "argos_views_rationale_55",
+      "argos_views_rationale_66",
+      "argos_views_rationale_80",
+      "argos_views_rationale_89",
+      "argos_views_verify_faces",
+      "ndarray",
+      "runserver",
+      "runserver_rationale_1"
+    ],
+    "2": [
+      "argos_static_scripts_bootstrap",
+      "argos_static_scripts_bootstrap_clearmenus",
+      "argos_static_scripts_bootstrap_dropdown_keydown",
+      "argos_static_scripts_bootstrap_dropdown_toggle",
+      "argos_static_scripts_bootstrap_getparent",
+      "argos_static_scripts_bootstrap_modal_backdrop",
+      "argos_static_scripts_bootstrap_modal_enforcefocus",
+      "argos_static_scripts_bootstrap_modal_escape",
+      "argos_static_scripts_bootstrap_modal_hide",
+      "argos_static_scripts_bootstrap_modal_hidemodal",
+      "argos_static_scripts_bootstrap_modal_removebackdrop",
+      "argos_static_scripts_bootstrap_modal_show",
+      "argos_static_scripts_bootstrap_popover_arrow",
+      "argos_static_scripts_bootstrap_popover_getcontent",
+      "argos_static_scripts_bootstrap_popover_getdefaults",
+      "argos_static_scripts_bootstrap_popover_hascontent",
+      "argos_static_scripts_bootstrap_popover_setcontent",
+      "argos_static_scripts_bootstrap_popover_tip",
+      "argos_static_scripts_bootstrap_rationale_1515",
+      "argos_static_scripts_bootstrap_tab_show",
+      "argos_static_scripts_bootstrap_tooltip_applyplacement",
+      "argos_static_scripts_bootstrap_tooltip_arrow",
+      "argos_static_scripts_bootstrap_tooltip_destroy",
+      "argos_static_scripts_bootstrap_tooltip_enter",
+      "argos_static_scripts_bootstrap_tooltip_fixtitle",
+      "argos_static_scripts_bootstrap_tooltip_getcalculatedoffset",
+      "argos_static_scripts_bootstrap_tooltip_getdelegateoptions",
+      "argos_static_scripts_bootstrap_tooltip_getoptions",
+      "argos_static_scripts_bootstrap_tooltip_getposition",
+      "argos_static_scripts_bootstrap_tooltip_gettitle",
+      "argos_static_scripts_bootstrap_tooltip_hascontent",
+      "argos_static_scripts_bootstrap_tooltip_hide",
+      "argos_static_scripts_bootstrap_tooltip_init",
+      "argos_static_scripts_bootstrap_tooltip_leave",
+      "argos_static_scripts_bootstrap_tooltip_replacearrow",
+      "argos_static_scripts_bootstrap_tooltip_setcontent",
+      "argos_static_scripts_bootstrap_tooltip_show",
+      "argos_static_scripts_bootstrap_tooltip_toggle",
+      "argos_static_scripts_bootstrap_tooltip_validate",
+      "argos_static_scripts_bootstrap_transitionend"
+    ],
+    "3": [
+      "argos_static_scripts_jquery_1_10_2",
+      "argos_static_scripts_jquery_1_10_2_addhandle",
+      "argos_static_scripts_jquery_1_10_2_addtoprefiltersortransports",
+      "argos_static_scripts_jquery_1_10_2_ajaxextend",
+      "argos_static_scripts_jquery_1_10_2_assert",
+      "argos_static_scripts_jquery_1_10_2_augmentwidthorheight",
+      "argos_static_scripts_jquery_1_10_2_buildparams",
+      "argos_static_scripts_jquery_1_10_2_clonecopyevent",
+      "argos_static_scripts_jquery_1_10_2_createactivexhr",
+      "argos_static_scripts_jquery_1_10_2_createbuttonpseudo",
+      "argos_static_scripts_jquery_1_10_2_createcache",
+      "argos_static_scripts_jquery_1_10_2_createinputpseudo",
+      "argos_static_scripts_jquery_1_10_2_createoptions",
+      "argos_static_scripts_jquery_1_10_2_createsafefragment",
+      "argos_static_scripts_jquery_1_10_2_createstandardxhr",
+      "argos_static_scripts_jquery_1_10_2_dataattr",
+      "argos_static_scripts_jquery_1_10_2_fixdefaultchecked",
+      "argos_static_scripts_jquery_1_10_2_genfx",
+      "argos_static_scripts_jquery_1_10_2_getall",
+      "argos_static_scripts_jquery_1_10_2_getwidthorheight",
+      "argos_static_scripts_jquery_1_10_2_getwindow",
+      "argos_static_scripts_jquery_1_10_2_inspectprefiltersortransports",
+      "argos_static_scripts_jquery_1_10_2_internaldata",
+      "argos_static_scripts_jquery_1_10_2_isarraylike",
+      "argos_static_scripts_jquery_1_10_2_manipulationtarget",
+      "argos_static_scripts_jquery_1_10_2_rationale_7095",
+      "argos_static_scripts_jquery_1_10_2_returnfalse",
+      "argos_static_scripts_jquery_1_10_2_returntrue",
+      "argos_static_scripts_jquery_1_10_2_safeactiveelement",
+      "argos_static_scripts_jquery_1_10_2_setfilters",
+      "argos_static_scripts_jquery_1_10_2_setglobaleval",
+      "argos_static_scripts_jquery_1_10_2_setpositivenumber",
+      "argos_static_scripts_jquery_1_10_2_sibling",
+      "argos_static_scripts_jquery_1_10_2_siblingcheck",
+      "argos_static_scripts_jquery_1_10_2_vendorpropname"
+    ],
+    "4": [
+      "argos_static_scripts_modernizr_2_6_2",
+      "argos_static_scripts_modernizr_2_6_2_addstylesheet",
+      "argos_static_scripts_modernizr_2_6_2_contains",
+      "argos_static_scripts_modernizr_2_6_2_createdocumentfragment",
+      "argos_static_scripts_modernizr_2_6_2_createelement",
+      "argos_static_scripts_modernizr_2_6_2_function_bind",
+      "argos_static_scripts_modernizr_2_6_2_getelements",
+      "argos_static_scripts_modernizr_2_6_2_getexpandodata",
+      "argos_static_scripts_modernizr_2_6_2_is",
+      "argos_static_scripts_modernizr_2_6_2_iseventsupported",
+      "argos_static_scripts_modernizr_2_6_2_setcss",
+      "argos_static_scripts_modernizr_2_6_2_setcssall",
+      "argos_static_scripts_modernizr_2_6_2_shivdocument",
+      "argos_static_scripts_modernizr_2_6_2_shivmethods",
+      "argos_static_scripts_modernizr_2_6_2_testdomprops",
+      "argos_static_scripts_modernizr_2_6_2_testprops",
+      "argos_static_scripts_modernizr_2_6_2_testpropsall",
+      "argos_static_scripts_modernizr_2_6_2_webforms"
+    ],
+    "5": [
+      "benchmark_lfw",
+      "benchmark_lfw_compare_embeddings",
+      "benchmark_lfw_extract_embedding",
+      "benchmark_lfw_get_persons_with_multiple_photos",
+      "benchmark_lfw_image_to_base64",
+      "benchmark_lfw_main",
+      "benchmark_lfw_rationale_1",
+      "benchmark_lfw_rationale_133",
+      "benchmark_lfw_rationale_23",
+      "benchmark_lfw_rationale_39",
+      "benchmark_lfw_rationale_45",
+      "benchmark_lfw_rationale_59",
+      "benchmark_lfw_rationale_74",
+      "benchmark_lfw_run_different_person_test",
+      "benchmark_lfw_run_verification_test"
+    ],
+    "6": [
+      "argos_static_scripts_bootstrap_carousel_cycle",
+      "argos_static_scripts_bootstrap_carousel_getactiveindex",
+      "argos_static_scripts_bootstrap_carousel_next",
+      "argos_static_scripts_bootstrap_carousel_pause",
+      "argos_static_scripts_bootstrap_carousel_prev",
+      "argos_static_scripts_bootstrap_carousel_slide",
+      "argos_static_scripts_bootstrap_carousel_to",
+      "argos_static_scripts_bootstrap_scrollspy",
+      "argos_static_scripts_bootstrap_scrollspy_activate",
+      "argos_static_scripts_bootstrap_scrollspy_process",
+      "argos_static_scripts_bootstrap_scrollspy_refresh",
+      "argos_static_scripts_bootstrap_tab_activate"
+    ],
+    "7": [
+      "argos_static_scripts_jquery_validate_unobtrusive",
+      "argos_static_scripts_jquery_validate_unobtrusive_appendmodelprefix",
+      "argos_static_scripts_jquery_validate_unobtrusive_escapeattributevalue",
+      "argos_static_scripts_jquery_validate_unobtrusive_getmodelprefix",
+      "argos_static_scripts_jquery_validate_unobtrusive_onerror",
+      "argos_static_scripts_jquery_validate_unobtrusive_onerrors",
+      "argos_static_scripts_jquery_validate_unobtrusive_onreset",
+      "argos_static_scripts_jquery_validate_unobtrusive_onsuccess",
+      "argos_static_scripts_jquery_validate_unobtrusive_setvalidationvalues",
+      "argos_static_scripts_jquery_validate_unobtrusive_splitandtrim",
+      "argos_static_scripts_jquery_validate_unobtrusive_validationinfo"
+    ],
+    "8": [
+      "argos_static_scripts_jquery_1_10_2_addcombinator",
+      "argos_static_scripts_jquery_1_10_2_elementmatcher",
+      "argos_static_scripts_jquery_1_10_2_matcherfromtokens",
+      "argos_static_scripts_jquery_1_10_2_select",
+      "argos_static_scripts_jquery_1_10_2_sizzle",
+      "argos_static_scripts_jquery_1_10_2_tokenize",
+      "argos_static_scripts_jquery_1_10_2_toselector"
+    ],
+    "9": [
+      "argos_static_scripts_jquery_1_10_2_ajaxconvert",
+      "argos_static_scripts_jquery_1_10_2_ajaxhandleresponses",
+      "argos_static_scripts_jquery_1_10_2_animation",
+      "argos_static_scripts_jquery_1_10_2_createfxnow",
+      "argos_static_scripts_jquery_1_10_2_done",
+      "argos_static_scripts_jquery_1_10_2_propfilter",
+      "argos_static_scripts_jquery_1_10_2_tween"
+    ],
+    "10": [
+      "argos_logger_argosformatter",
+      "argos_logger_argosformatter_format",
+      "argos_logger_rationale_20",
+      "argos_logger_rationale_29",
+      "argos_logger_setup_logger",
+      "logger"
+    ],
+    "11": [
+      "argos_static_scripts_jquery_1_10_2_actualdisplay",
+      "argos_static_scripts_jquery_1_10_2_createtween",
+      "argos_static_scripts_jquery_1_10_2_css_defaultdisplay",
+      "argos_static_scripts_jquery_1_10_2_defaultprefilter",
+      "argos_static_scripts_jquery_1_10_2_ishidden",
+      "argos_static_scripts_jquery_1_10_2_showhide"
+    ],
+    "12": [
+      "argos_static_scripts_jquery_1_10_2_condense",
+      "argos_static_scripts_jquery_1_10_2_createpositionalpseudo",
+      "argos_static_scripts_jquery_1_10_2_markfunction",
+      "argos_static_scripts_jquery_1_10_2_matcherfromgroupmatchers",
+      "argos_static_scripts_jquery_1_10_2_multiplecontexts",
+      "argos_static_scripts_jquery_1_10_2_setmatcher"
+    ],
+    "13": [
+      "argos_static_scripts_bootstrap_min",
+      "argos_static_scripts_bootstrap_min_b",
+      "argos_static_scripts_bootstrap_min_c",
+      "argos_static_scripts_bootstrap_min_c_close",
+      "argos_static_scripts_bootstrap_min_e"
+    ],
+    "14": [
+      "argos_static_scripts_jquery_validate_vsdoc",
+      "argos_static_scripts_jquery_validate_vsdoc_delegate",
+      "argos_static_scripts_jquery_validate_vsdoc_handle",
+      "argos_static_scripts_jquery_validate_vsdoc_handler"
+    ],
+    "15": [
+      "argos_static_scripts_bootstrap_collapse_dimension",
+      "argos_static_scripts_bootstrap_collapse_hide",
+      "argos_static_scripts_bootstrap_collapse_show"
+    ],
+    "16": [
+      "argos_static_scripts_jquery_1_10_2_disablescript",
+      "argos_static_scripts_jquery_1_10_2_fixclonenodeissues",
+      "argos_static_scripts_jquery_1_10_2_restorescript"
+    ],
+    "17": [
+      "argos_static_scripts_jquery_validate",
+      "argos_static_scripts_jquery_validate_delegate",
+      "argos_static_scripts_jquery_validate_handle"
+    ],
+    "18": [
+      "argos_static_scripts_jquery_1_10_2_internalremovedata",
+      "argos_static_scripts_jquery_1_10_2_isemptydataobject"
+    ],
+    "19": [
+      "argos_static_scripts_respond",
+      "argos_static_scripts_respond_callmedia"
+    ],
+    "20": [
+      "deploy",
+      "deploy_sh__entry"
+    ],
+    "21": [
+      "deploy_production",
+      "deploy_production_sh__entry"
+    ],
+    "22": [
+      "argos_static_scripts_bootstrap_affix_checkposition"
+    ],
+    "23": [
+      "argos_static_scripts_bootstrap_affix_checkpositionwitheventloop"
+    ],
+    "24": [
+      "argos_static_scripts_bootstrap_alert_close"
+    ],
+    "25": [
+      "argos_static_scripts_bootstrap_button_setstate"
+    ],
+    "26": [
+      "argos_static_scripts_bootstrap_button_toggle"
+    ],
+    "27": [
+      "argos_static_scripts_bootstrap_collapse_toggle"
+    ],
+    "28": [
+      "argos_static_scripts_bootstrap_modal_toggle"
+    ],
+    "29": [
+      "argos_static_scripts_bootstrap_tooltip_disable"
+    ],
+    "30": [
+      "argos_static_scripts_bootstrap_tooltip_enable"
+    ],
+    "31": [
+      "argos_static_scripts_bootstrap_tooltip_getdefaults"
+    ],
+    "32": [
+      "argos_static_scripts_bootstrap_tooltip_tip"
+    ],
+    "33": [
+      "argos_static_scripts_bootstrap_tooltip_toggleenabled"
+    ],
+    "34": [
+      "argos_static_scripts_jquery_1_10_2_intellisense"
+    ],
+    "35": [
+      "argos_static_scripts_references"
+    ]
+  },
+  "cohesion": {
+    "0": 0.05328218243819267,
+    "1": 0.06485671191553545,
+    "2": 0.07051282051282051,
+    "3": 0.058823529411764705,
+    "4": 0.23529411764705882,
+    "5": 0.21904761904761905,
+    "6": 0.22727272727272727,
+    "7": 0.2727272727272727,
+    "8": 0.38095238095238093,
+    "9": 0.2857142857142857,
+    "10": 0.3333333333333333,
+    "11": 0.4,
+    "12": 0.4,
+    "13": 0.5,
+    "14": 0.5,
+    "15": 0.6666666666666666,
+    "16": 0.6666666666666666,
+    "17": 0.6666666666666666,
+    "18": 1.0,
+    "19": 1.0,
+    "20": 1.0,
+    "21": 1.0,
+    "22": 1.0,
+    "23": 1.0,
+    "24": 1.0,
+    "25": 1.0,
+    "26": 1.0,
+    "27": 1.0,
+    "28": 1.0,
+    "29": 1.0,
+    "30": 1.0,
+    "31": 1.0,
+    "32": 1.0,
+    "33": 1.0,
+    "34": 1.0,
+    "35": 1.0
+  },
+  "gods": [
+    {
+      "id": "argos_static_scripts_jquery_1_10_2_min_wt",
+      "label": "wt()",
+      "degree": 11
+    },
+    {
+      "id": "argos_static_scripts_jquery_1_10_2_min_at",
+      "label": "at()",
+      "degree": 10
+    },
+    {
+      "id": "argos_logger_log_response",
+      "label": "log_response()",
+      "degree": 9
+    },
+    {
+      "id": "argos_static_scripts_jquery_validate_unobtrusive_min_i",
+      "label": "i()",
+      "degree": 9
+    },
+    {
+      "id": "argos_logger_log_error",
+      "label": "log_error()",
+      "degree": 8
+    },
+    {
+      "id": "argos_static_scripts_jquery_validate_min_s",
+      "label": "s()",
+      "degree": 8
+    },
+    {
+      "id": "argos_logger_log_model_operation",
+      "label": "log_model_operation()",
+      "degree": 7
+    },
+    {
+      "id": "argos_static_scripts_modernizr_2_6_2_createelement",
+      "label": "createElement()",
+      "degree": 7
+    },
+    {
+      "id": "argos_views_identify_face",
+      "label": "identify_face()",
+      "degree": 7
+    },
+    {
+      "id": "argos_decorators_api_route",
+      "label": "api_route()",
+      "degree": 6
+    }
+  ],
+  "surprises": [
+    {
+      "source": "winnow()",
+      "target": "i()",
+      "source_files": [
+        "ARGOS/static/scripts/jquery-1.10.2.js",
+        "ARGOS/static/scripts/jquery.validate.unobtrusive.min.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "indirect_call",
+      "why": "inferred connection - not explicitly stated in source; peripheral node `winnow()` unexpectedly reaches hub `i()`"
+    },
+    {
+      "source": "done()",
+      "target": "s()",
+      "source_files": [
+        "ARGOS/static/scripts/jquery-1.10.2.js",
+        "ARGOS/static/scripts/jquery.validate.min.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "indirect_call",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
+      "source": "ft()",
+      "target": "t()",
+      "source_files": [
+        "ARGOS/static/scripts/jquery-1.10.2.min.js",
+        "ARGOS/static/scripts/respond.min.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "indirect_call",
+      "why": "inferred connection - not explicitly stated in source; peripheral node `ft()` unexpectedly reaches hub `t()`"
+    },
+    {
+      "source": "wt()",
+      "target": "g()",
+      "source_files": [
+        "ARGOS/static/scripts/jquery-1.10.2.min.js",
+        "ARGOS/static/scripts/jquery.validate.unobtrusive.min.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "indirect_call",
+      "why": "inferred connection - not explicitly stated in source; peripheral node `g()` unexpectedly reaches hub `wt()`"
+    },
+    {
+      "source": "Hn()",
+      "target": "n()",
+      "source_files": [
+        "ARGOS/static/scripts/jquery-1.10.2.min.js",
+        "ARGOS/static/scripts/jquery.validate.unobtrusive.min.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "indirect_call",
+      "why": "inferred connection - not explicitly stated in source; peripheral node `Hn()` unexpectedly reaches hub `n()`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `s()` connect `jquery-1.10.2.min.js` to `Animation`?",
+      "why": "High betweenness centrality (0.054) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `done()` connect `Animation` to `defaultPrefilter`, `jquery-1.10.2.min.js`, `jquery-1.10.2.js`?",
+      "why": "High betweenness centrality (0.052) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 6 inferred relationships involving `wt()` (e.g. with `s()` and `f()`) actually correct?",
+      "why": "`wt()` has 6 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 5 inferred relationships involving `at()` (e.g. with `s()` and `i()`) actually correct?",
+      "why": "`at()` has 5 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 8 inferred relationships involving `i()` (e.g. with `at()` and `vt()`) actually correct?",
+      "why": "`i()` has 8 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `deploy-production.sh script`, `deploy.sh script` to the rest of the system?",
+      "why": "2 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `jquery-1.10.2.min.js` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.05328218243819267 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

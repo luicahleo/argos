@@ -1,0 +1,117 @@
+{
+  "ARGOS/__init__.py": {
+    "mtime": 1783010355.6869562,
+    "ast_hash": "b9479dd9ec15ef12af07f44369f12aca",
+    "semantic_hash": "b9479dd9ec15ef12af07f44369f12aca"
+  },
+  "ARGOS/api_client.py": {
+    "mtime": 1783094319.1516452,
+    "ast_hash": "38e5a7d6398bbbf55680e85d2a0afd89",
+    "semantic_hash": "38e5a7d6398bbbf55680e85d2a0afd89"
+  },
+  "ARGOS/decorators.py": {
+    "mtime": 1783094812.7270615,
+    "ast_hash": "a3e2f527c5fda827028ecbd2fc680eb2",
+    "semantic_hash": "a3e2f527c5fda827028ecbd2fc680eb2"
+  },
+  "ARGOS/logger.py": {
+    "mtime": 1783010355.6899586,
+    "ast_hash": "2b8475a26d5d904021e30b66a5782bc1",
+    "semantic_hash": "2b8475a26d5d904021e30b66a5782bc1"
+  },
+  "ARGOS/static/scripts/_references.js": {
+    "mtime": 1783010355.7095025,
+    "ast_hash": "45a365718ebf5c1d9dfc0ed442bf2025",
+    "semantic_hash": "45a365718ebf5c1d9dfc0ed442bf2025"
+  },
+  "ARGOS/static/scripts/bootstrap.js": {
+    "mtime": 1783010355.7125022,
+    "ast_hash": "8959736f0c22478f970bcc6c54ddfa75",
+    "semantic_hash": "8959736f0c22478f970bcc6c54ddfa75"
+  },
+  "ARGOS/static/scripts/bootstrap.min.js": {
+    "mtime": 1783010355.7151127,
+    "ast_hash": "59e9cf1fcfcef4730d1c227da4d2e089",
+    "semantic_hash": "59e9cf1fcfcef4730d1c227da4d2e089"
+  },
+  "ARGOS/static/scripts/jquery-1.10.2.intellisense.js": {
+    "mtime": 1783010355.7171125,
+    "ast_hash": "8bb84755759d660cfb7afa53c806591a",
+    "semantic_hash": "8bb84755759d660cfb7afa53c806591a"
+  },
+  "ARGOS/static/scripts/jquery-1.10.2.js": {
+    "mtime": 1783010355.7201126,
+    "ast_hash": "d3af38bdc2f24f7bfffc479459e1ce98",
+    "semantic_hash": "d3af38bdc2f24f7bfffc479459e1ce98"
+  },
+  "ARGOS/static/scripts/jquery-1.10.2.min.js": {
+    "mtime": 1783010355.7221117,
+    "ast_hash": "248b71dda521aa38d72f872b588aea69",
+    "semantic_hash": "248b71dda521aa38d72f872b588aea69"
+  },
+  "ARGOS/static/scripts/jquery.validate-vsdoc.js": {
+    "mtime": 1783010355.7271118,
+    "ast_hash": "cccea6eeb74f43e5d7f3d2143027f2fe",
+    "semantic_hash": "cccea6eeb74f43e5d7f3d2143027f2fe"
+  },
+  "ARGOS/static/scripts/jquery.validate.js": {
+    "mtime": 1783010355.731113,
+    "ast_hash": "10d9cb073550757ea1a6bbefb135d2b5",
+    "semantic_hash": "10d9cb073550757ea1a6bbefb135d2b5"
+  },
+  "ARGOS/static/scripts/jquery.validate.min.js": {
+    "mtime": 1783010355.737112,
+    "ast_hash": "ff0f9e5a0e81ecbc3ae81c1f23fa38bd",
+    "semantic_hash": "ff0f9e5a0e81ecbc3ae81c1f23fa38bd"
+  },
+  "ARGOS/static/scripts/jquery.validate.unobtrusive.js": {
+    "mtime": 1783010355.742193,
+    "ast_hash": "9ba9916b9cd5b30bd224f53685057adf",
+    "semantic_hash": "9ba9916b9cd5b30bd224f53685057adf"
+  },
+  "ARGOS/static/scripts/jquery.validate.unobtrusive.min.js": {
+    "mtime": 1783010355.746708,
+    "ast_hash": "dd9e6ecb410314024555b6a8f7846860",
+    "semantic_hash": "dd9e6ecb410314024555b6a8f7846860"
+  },
+  "ARGOS/static/scripts/modernizr-2.6.2.js": {
+    "mtime": 1783010355.748708,
+    "ast_hash": "b436ea972911317706826efb872f4716",
+    "semantic_hash": "b436ea972911317706826efb872f4716"
+  },
+  "ARGOS/static/scripts/respond.js": {
+    "mtime": 1783010355.7527063,
+    "ast_hash": "3c4d3ccd385faf583873a72ce84d63c8",
+    "semantic_hash": "3c4d3ccd385faf583873a72ce84d63c8"
+  },
+  "ARGOS/static/scripts/respond.min.js": {
+    "mtime": 1783010355.755706,
+    "ast_hash": "4d871dd56425f55a817525762490f866",
+    "semantic_hash": "4d871dd56425f55a817525762490f866"
+  },
+  "ARGOS/views.py": {
+    "mtime": 1783094893.4184496,
+    "ast_hash": "1fd72038116912aa27c0f8e5c271dbd1",
+    "semantic_hash": "1fd72038116912aa27c0f8e5c271dbd1"
+  },
+  "benchmark_lfw.py": {
+    "mtime": 1783010355.7801132,
+    "ast_hash": "122134c2acd3ac359bb297e2f4b2a9c9",
+    "semantic_hash": "122134c2acd3ac359bb297e2f4b2a9c9"
+  },
+  "deploy-production.sh": {
+    "mtime": 1783010355.7827055,
+    "ast_hash": "f927667616918558f779c38cfeb08c53",
+    "semantic_hash": "f927667616918558f779c38cfeb08c53"
+  },
+  "deploy.sh": {
+    "mtime": 1783010355.7853165,
+    "ast_hash": "cf71b21774fb769d182cc8c4fd6d65ed",
+    "semantic_hash": "cf71b21774fb769d182cc8c4fd6d65ed"
+  },
+  "runserver.py": {
+    "mtime": 1783010355.7920775,
+    "ast_hash": "1e7bfb92bec3dee39e41d5966383299e",
+    "semantic_hash": "1e7bfb92bec3dee39e41d5966383299e"
+  }
+}
