@@ -26,10 +26,16 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
-    - name: Agregar host conocido
+    - name: Instalar clave pública conocida del VPS
+      env:
+        VPS_HOST: ${{ secrets.VPS_HOST }}
+        VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
       run: |
-        mkdir -p ~/.ssh
-        ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+        set -Eeuo pipefail
+        install -d -m 0700 ~/.ssh
+        printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        chmod 0600 ~/.ssh/known_hosts
+        ssh-keygen -F "$VPS_HOST" -f ~/.ssh/known_hosts >/dev/null
 
     - name: Crear estructura de directorios en VPS
       run: |
