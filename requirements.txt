@@ -1,21 +1,29 @@
 # ARGOS Face Recognition Microservice
 # Core Dependencies
+#
+# Versiones con tope de major: un build --no-cache resuelve contra el PyPI del
+# momento; sin topes, opencv-python 5.0 (sin cv2.CascadeClassifier, que el
+# backend "opencv" de DeepFace sigue usando) rompio la deteccion en el deploy
+# del 2026-08-06. Ver doc 32 en preguntasrespuestasCaseritoApp.
 
 # Web Framework
-Flask>=2.2.3
-flask-cors>=4.0.0
+Flask>=2.2.3,<4
+flask-cors>=4.0.0,<7
 
 # DeepFace for Facial Recognition
-deepface>=0.0.79
-tf-keras>=2.15.0
+# 0.0.100 es la version verificada en el contenedor desplegado; se fija exacta
+# porque su esquema 0.0.x no distingue minor de breaking changes.
+deepface==0.0.100
+tf-keras>=2.15.0,<3
 
 # Image Processing
-opencv-python>=4.8.0
-numpy>=1.24.0
-pillow>=10.0.0
+# <5: opencv 5.0 elimino cv2.CascadeClassifier (regresion doc 32)
+opencv-python>=4.8,<5
+numpy>=1.24.0,<3
+pillow>=10.0.0,<12
 
 # HTTP Client for ICARUS.API
-requests>=2.28.0
+requests>=2.28.0,<3
 
 # Utilities
-python-dotenv>=1.0.0
+python-dotenv>=1.0.0,<2
