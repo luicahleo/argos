@@ -307,3 +307,10 @@ GET http://localhost:5090/api/biometria/embeddings/{clienteId}
 ## 📄 Licencia
 
 TRAJANO Software - Uso exclusivo para clientes con licencia activa de ICARUS.
+# Flujo de desarrollo
+
+La rama predeterminada es `develop`. Los cambios se integran mediante pull
+request y deben superar el CI, incluida la construcción de la imagen Docker.
+`master` representa producción y solo recibe promociones explícitas desde
+`develop`. El despliegue se ejecuta manualmente desde GitHub Actions, seleccionando
+`master` y escribiendo `PRODUCCION`.
