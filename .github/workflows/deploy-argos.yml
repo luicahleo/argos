@@ -4,17 +4,51 @@
 name: Deploy ARGOS to Production
 
 on:
-  push:
-    branches: [ main, master ]
   workflow_dispatch:
+    inputs:
+      confirmar:
+        description: Escribe PRODUCCION para confirmar el despliegue
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: argos-production
+  cancel-in-progress: false
+
+env:
+  RELEASE_SHA: ${{ github.sha }}
 
 jobs:
   deploy-argos:
+    if: github.ref == 'refs/heads/master' && inputs.confirmar == 'PRODUCCION'
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
+    - name: Verificar CI verde del commit
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -Eeuo pipefail
+        conclusion="$(
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${RELEASE_SHA}&branch=master&event=push&per_page=20" \
+            --jq '.workflow_runs | sort_by(.updated_at) | last | .conclusion // ""'
+        )"
+        if [ "$conclusion" != "success" ]; then
+          echo "El commit de master no tiene un CI verde."
+          exit 1
+        fi
+
     - name: Checkout código
       uses: actions/checkout@v4
+      with:
+        ref: ${{ env.RELEASE_SHA }}
 
     - name: Set up Python
       uses: actions/setup-python@v5
