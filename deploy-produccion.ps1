@@ -109,8 +109,21 @@ if (-not (Test-Programa 'gh')) {
     throw 'GitHub CLI (gh) no está disponible en PATH'
 }
 
-if (-not (Test-Programa 'bash')) {
-    throw 'bash no está disponible en PATH (necesario para verify.sh)'
+$RutasGitBash = @(
+    (Join-Path ${env:ProgramFiles} 'Git\bin\bash.exe'),
+    (Join-Path ${env:ProgramFiles(x86)} 'Git\bin\bash.exe')
+) | Where-Object { $_ -and (Test-Path $_) }
+# `bash` en PATH puede resolver al stub de WSL (C:\Windows\system32\bash.exe),
+# que falla con timeout si WSL no está disponible. Usamos Git Bash
+# explícitamente, que es el intérprete real de los scripts .sh del repo.
+if ($RutasGitBash) {
+    $BashExe = $RutasGitBash[0]
+}
+elseif (Test-Programa 'bash') {
+    $BashExe = 'bash'
+}
+else {
+    throw 'No se encontró Git Bash ni bash en PATH (necesario para verify.sh)'
 }
 
 gh auth status >$null 2>&1
@@ -126,7 +139,7 @@ Set-Location $raiz
 # ---------------------------------------------------------------------------
 
 Write-Host 'Ejecutando puerta de calidad local...'
-& bash './verify.sh'
+& $BashExe './verify.sh'
 if ($LASTEXITCODE -ne 0) {
     throw 'La puerta de calidad local falló. Corrige antes de publicar.'
 }
