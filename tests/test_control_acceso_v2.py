@@ -39,6 +39,75 @@ class ControlAccesoAuthTests(unittest.TestCase):
             headers={"Authorization": "Bearer test-key"},
         )
 
+    def post_identification(self, payload):
+        return self.client.post(
+            "/api/v2/control-acceso/identificaciones",
+            json=payload,
+            headers={"Authorization": "Bearer test-key"},
+        )
+
+    def identification_payload(self, probe_vector, candidate_vector):
+        return {
+            "imagen": synthetic_image_payload(),
+            "formato": "jpeg",
+            "tenant_id": "00000000-0000-0000-0000-000000000000",
+            "modelo_formato_esperado": "arcface-cosine-512",
+            "version_modelo_esperada": 1,
+            "candidatos": [
+                {
+                    "trabajador_id": "11111111-1111-1111-1111-111111111111",
+                    "vector": candidate_vector,
+                    "modelo_formato": "arcface-cosine-512",
+                    "version_enrolamiento": 1,
+                }
+            ],
+        }
+
+    @patch("ARGOS.views.DeepFace.represent")
+    def test_identificacion_coincide_con_candidato(self, represent):
+        vector = [1.0] + [0.0] * 511
+        represent.return_value = [{"embedding": vector}]
+
+        response = self.post_identification(self.identification_payload(vector, vector))
+
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(data["identificado"])
+        self.assertEqual(data["trabajador_id"], "11111111-1111-1111-1111-111111111111")
+        self.assertEqual(data["modelo_formato"], "arcface-cosine-512")
+        self.assertEqual(data["version_modelo"], 1)
+        self.assertFalse(data["pad_aprobado"])
+        self.assertNotIn("distancia", data)
+        self.assertNotIn("candidatos", data)
+
+    @patch("ARGOS.views.DeepFace.represent")
+    def test_identificacion_sin_coincidencia_devuelve_codigo(self, represent):
+        probe = [1.0] + [0.0] * 511
+        candidate = [-1.0] + [0.0] * 511
+        represent.return_value = [{"embedding": probe}]
+
+        response = self.post_identification(self.identification_payload(probe, candidate))
+
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertFalse(data["identificado"])
+        self.assertEqual(data["codigo"], "sin_coincidencia")
+        self.assertNotIn("trabajador_id", data)
+        self.assertNotIn("distancia", data)
+        self.assertNotIn("candidatos", data)
+
+    @patch("ARGOS.views.DeepFace.represent")
+    def test_identificacion_acepta_version_de_enrolamiento_independiente(self, represent):
+        vector = [1.0] + [0.0] * 511
+        represent.return_value = [{"embedding": vector}]
+        payload = self.identification_payload(vector, vector)
+        payload["candidatos"][0]["version_enrolamiento"] = 3
+
+        response = self.post_identification(payload)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.get_json()["identificado"])
+
     @patch("ARGOS.views.DeepFace.represent")
     def test_extraccion_devuelve_vector(self, represent):
         represent.return_value = [{"embedding": [0.25, -0.5]}]
