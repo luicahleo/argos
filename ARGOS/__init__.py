@@ -20,3 +20,7 @@ from ARGOS.logger import logger
 logger.info("ARGOS Flask application initialized")
 
 import ARGOS.views
+
+from ARGOS.control_acceso_v2 import control_acceso_v2
+
+app.register_blueprint(control_acceso_v2)
