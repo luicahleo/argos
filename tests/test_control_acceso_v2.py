@@ -20,6 +20,22 @@ class ControlAccesoAuthTests(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 401)
 
+    def test_capacidades_expone_campos_del_contrato_v2(self):
+        response = self.client.get(
+            "/api/v2/control-acceso/capacidades",
+            headers={"Authorization": "Bearer test-key"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(data["modelo"], "ArcFace")
+        self.assertEqual(data["detector_backend"], "opencv")
+        self.assertEqual(data["embedding_size"], 512)
+        self.assertEqual(data["distance_metric"], "cosine")
+        self.assertEqual(data["threshold"], 0.68)
+        self.assertIs(data["pad_disponible"], False)
+        self.assertEqual(data["version_contrato"], "2.0")
+
 
 if __name__ == "__main__":
     unittest.main()
