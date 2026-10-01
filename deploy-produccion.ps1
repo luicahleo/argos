@@ -127,8 +127,11 @@ $RutasGitBash = @(
 # `bash` en PATH puede resolver al stub de WSL (C:\Windows\system32\bash.exe),
 # que falla con timeout si WSL no está disponible. Usamos Git Bash
 # explícitamente, que es el intérprete real de los scripts .sh del repo.
+# @(...) fuerza el contexto de array: con un solo resultado, Where-Object
+# devuelve un string escalar y "[0]" sobre un string indexa su primer
+# carácter, no el elemento completo.
 if ($RutasGitBash) {
-    $BashExe = $RutasGitBash[0]
+    $BashExe = @($RutasGitBash)[0]
 }
 elseif (Test-Programa 'bash') {
     $BashExe = 'bash'
