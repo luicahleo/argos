@@ -24,8 +24,8 @@ jobs:
       - name: Validar sintaxis Python
         run: python -m compileall -q ARGOS runserver.py benchmark_lfw.py
 
-      - name: Ejecutar pruebas
-        run: python -m unittest discover -s tests -p 'test_*.py' -v
-
       - name: Construir imagen
         run: docker build --tag argos:ci .
+
+      - name: Ejecutar pruebas
+        run: docker run --rm --volume "${{ github.workspace }}:/repo:ro" --workdir /app argos:ci python -m unittest discover -s /repo/tests -p 'test_*.py' -v
