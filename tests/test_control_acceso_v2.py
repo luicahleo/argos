@@ -1,7 +1,8 @@
 import base64
+import logging
 import os
 import unittest
-from io import BytesIO
+from io import BytesIO, StringIO
 from unittest.mock import patch
 
 from PIL import Image
@@ -9,11 +10,11 @@ from PIL import Image
 from ARGOS import app
 
 
-def synthetic_image_payload():
+def synthetic_image_payload(size=(1, 1), image_format="JPEG"):
     """Return a tiny synthetic JPEG; DeepFace is mocked in endpoint tests."""
-    image = Image.new("RGB", (1, 1), color=(128, 128, 128))
+    image = Image.new("RGB", size, color=(128, 128, 128))
     content = BytesIO()
-    image.save(content, format="JPEG")
+    image.save(content, format=image_format)
     return base64.b64encode(content.getvalue()).decode("ascii")
 
 
@@ -133,6 +134,147 @@ class ControlAccesoAuthTests(unittest.TestCase):
                 response = self.post_extraction(payload)
                 self.assertEqual(response.status_code, 400)
                 self.assertEqual(response.get_json()["codigo"], "campos_faltantes")
+
+    def test_identificacion_requiere_imagen(self):
+        vector = [1.0] + [0.0] * 511
+        payload = self.identification_payload(vector, vector)
+        del payload["imagen"]
+
+        response = self.post_identification(payload)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json()["codigo"], "campos_faltantes")
+
+    @patch("ARGOS.views.DeepFace.represent")
+    def test_endpoints_rechazan_base64_malformado_con_error_generico(self, represent):
+        vector = [1.0] + [0.0] * 511
+        invalid_image = base64.b64encode(b"not an image").decode("ascii")
+        cases = (
+            (self.post_extraction, extraction_payload(imagen="not base64!")),
+            (self.post_identification, self.identification_payload(vector, vector) | {"imagen": "not base64!"}),
+            (self.post_extraction, extraction_payload(imagen=invalid_image)),
+            (self.post_identification, self.identification_payload(vector, vector) | {"imagen": invalid_image}),
+        )
+        for post, payload in cases:
+            with self.subTest(endpoint=post.__name__):
+                response = post(payload)
+                self.assertEqual(response.status_code, 422)
+                self.assertEqual(response.get_json()["codigo"], "formato_invalido")
+                self.assertNotIn("error", response.get_json())
+        represent.assert_not_called()
+
+    @patch("ARGOS.views.DeepFace.represent")
+    def test_endpoints_rechazan_imagenes_mayores_a_2_mib(self, represent):
+        encoded = base64.b64encode(b"x" * (2 * 1024 * 1024 + 1)).decode("ascii")
+        vector = [1.0] + [0.0] * 511
+        cases = (
+            (self.post_extraction, extraction_payload(imagen=encoded)),
+            (self.post_identification, self.identification_payload(vector, vector) | {"imagen": encoded}),
+        )
+        for post, payload in cases:
+            with self.subTest(endpoint=post.__name__):
+                response = post(payload)
+                self.assertEqual(response.status_code, 413)
+                self.assertEqual(response.get_json()["codigo"], "payload_muy_grande")
+        represent.assert_not_called()
+
+    @patch("ARGOS.views.DeepFace.represent")
+    def test_endpoints_rechazan_dimensiones_mayores_a_1920(self, represent):
+        image = synthetic_image_payload(size=(1921, 1))
+        vector = [1.0] + [0.0] * 511
+        cases = (
+            (self.post_extraction, extraction_payload(imagen=image)),
+            (self.post_identification, self.identification_payload(vector, vector) | {"imagen": image}),
+        )
+        for post, payload in cases:
+            with self.subTest(endpoint=post.__name__):
+                response = post(payload)
+                self.assertEqual(response.status_code, 422)
+                self.assertEqual(response.get_json()["codigo"], "imagen_muy_grande")
+        represent.assert_not_called()
+
+    @patch("ARGOS.views.DeepFace.represent")
+    def test_endpoints_rechazan_formato_declarado_distinto_al_real(self, represent):
+        png = synthetic_image_payload(image_format="PNG")
+        vector = [1.0] + [0.0] * 511
+        cases = (
+            (self.post_extraction, extraction_payload(imagen=png, formato="jpeg")),
+            (self.post_identification, self.identification_payload(vector, vector) | {"imagen": png}),
+        )
+        for post, payload in cases:
+            with self.subTest(endpoint=post.__name__):
+                response = post(payload)
+                self.assertEqual(response.status_code, 422)
+                self.assertEqual(response.get_json()["codigo"], "formato_invalido")
+        represent.assert_not_called()
+
+    @patch("ARGOS.views.DeepFace.represent")
+    def test_identificacion_rechaza_modelo_de_candidato_incompatible(self, represent):
+        vector = [1.0] + [0.0] * 511
+        payload = self.identification_payload(vector, vector)
+        payload["candidatos"][0]["modelo_formato"] = "otro-modelo"
+
+        response = self.post_identification(payload)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["codigo"], "modelo_incompatible")
+        represent.assert_not_called()
+
+    @patch("ARGOS.views.DeepFace.represent")
+    def test_identificacion_con_distancias_iguales_es_ambigua(self, represent):
+        vector = [1.0] + [0.0] * 511
+        payload = self.identification_payload(vector, vector)
+        payload["candidatos"].append({
+            "trabajador_id": "22222222-2222-2222-2222-222222222222",
+            "vector": vector,
+            "modelo_formato": "arcface-cosine-512",
+            "version_enrolamiento": 7,
+        })
+        represent.return_value = [{"embedding": vector}]
+
+        response = self.post_identification(payload)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["codigo"], "ambigua")
+        self.assertNotIn("trabajador_id", response.get_json())
+
+    @patch("ARGOS.views.DeepFace.represent")
+    def test_identificacion_limita_candidatos_a_cincuenta(self, represent):
+        vector = [1.0] + [0.0] * 511
+        payload = self.identification_payload(vector, vector)
+        payload["candidatos"] *= 51
+
+        response = self.post_identification(payload)
+
+        self.assertEqual(response.status_code, 413)
+        self.assertEqual(response.get_json()["codigo"], "payload_muy_grande")
+        represent.assert_not_called()
+
+    @patch("ARGOS.views.DeepFace.represent")
+    def test_identificacion_no_registra_vectores_ni_identificadores(self, represent):
+        vector = [1.0] + [0.0] * 511
+        worker_id = "11111111-1111-1111-1111-111111111111"
+        payload = self.identification_payload(vector, vector)
+        tenant_id = payload["tenant_id"]
+        image = payload["imagen"]
+        log_output = StringIO()
+        handler = logging.StreamHandler(log_output)
+        root_logger = logging.getLogger()
+        root_logger.addHandler(handler)
+        represent.return_value = [{"embedding": vector}]
+        try:
+            response = self.post_identification(payload)
+        finally:
+            root_logger.removeHandler(handler)
+            handler.close()
+
+        self.assertEqual(response.status_code, 200)
+        logs = log_output.getvalue()
+        self.assertNotIn(str(vector), logs)
+        self.assertNotIn(worker_id, logs)
+        self.assertNotIn(tenant_id, logs)
+        self.assertNotIn(image, logs)
+        self.assertNotIn(str(payload), logs)
 
     @patch("ARGOS.views.DeepFace.represent")
     def test_extraccion_rechaza_formato_no_admitido(self, represent):

@@ -1,9 +1,13 @@
+import base64
+from io import BytesIO
+
+from PIL import Image, UnidentifiedImageError
 from flask import Blueprint, jsonify, request
 
 from ARGOS import DETECTOR_BACKEND, MODEL_NAME, VERIFICATION_THRESHOLD
 from ARGOS.auth_control_acceso import requiere_control_acceso_auth
 from ARGOS.decorators import _face_not_detected_response
-from ARGOS.views import DeepFace, calculate_cosine_distance, decode_base64_image
+from ARGOS.views import DeepFace, calculate_cosine_distance
 
 
 control_acceso_v2 = Blueprint(
@@ -15,6 +19,56 @@ control_acceso_v2 = Blueprint(
 MODELO_FORMATO = "arcface-cosine-512"
 VERSION_MODELO = 1
 MARGEN_AMBIGUEDAD = 0.05
+MAX_IMAGE_BYTES = 2 * 1024 * 1024
+MAX_CANDIDATOS = 50
+
+
+class ImagenBase64Invalida(ValueError):
+    pass
+
+
+class ImagenDemasiadoGrande(ValueError):
+    pass
+
+
+class ImagenDimensionesExcedidas(ValueError):
+    pass
+
+
+def _validar_imagen_base64(value, formato_declarado):
+    """Validate strict base64 and decoded image size before image processing."""
+    encoded = value.partition(",")[2] if "," in value else value
+    if len(encoded) > ((MAX_IMAGE_BYTES + 2) // 3) * 4:
+        raise ImagenDemasiadoGrande
+    try:
+        image_bytes = base64.b64decode(encoded, validate=True)
+    except (ValueError, TypeError):
+        raise ImagenBase64Invalida from None
+    if len(image_bytes) > MAX_IMAGE_BYTES:
+        raise ImagenDemasiadoGrande
+    try:
+        with Image.open(BytesIO(image_bytes)) as image:
+            image.verify()
+    except (UnidentifiedImageError, OSError, ValueError, SyntaxError):
+        raise ImagenBase64Invalida from None
+    with Image.open(BytesIO(image_bytes)) as image:
+        if image.format not in ("JPEG", "PNG"):
+            raise ImagenBase64Invalida
+        formato_esperado = "JPEG" if formato_declarado.lower() in ("jpeg", "jpg") else "PNG"
+        if image.format != formato_esperado:
+            raise ImagenBase64Invalida
+        if image.width > 1920 or image.height > 1920:
+            raise ImagenDimensionesExcedidas
+    return image_bytes
+
+
+def _decodificar_imagen_validada(image_bytes):
+    image = Image.open(BytesIO(image_bytes))
+    if image.mode != "RGB":
+        image = image.convert("RGB")
+    import numpy as np
+
+    return np.array(image)
 
 
 @control_acceso_v2.route("/capacidades", methods=["GET"])
@@ -50,7 +104,16 @@ def extraer():
         return jsonify({"exitoso": False, "codigo": "formato_invalido"}), 422
 
     try:
-        image_array = decode_base64_image(data["imagen"])
+        image_bytes = _validar_imagen_base64(data["imagen"], formato)
+    except ImagenDemasiadoGrande:
+        return jsonify({"exitoso": False, "codigo": "payload_muy_grande"}), 413
+    except ImagenDimensionesExcedidas:
+        return jsonify({"exitoso": False, "codigo": "imagen_muy_grande"}), 422
+    except ImagenBase64Invalida:
+        return jsonify({"exitoso": False, "codigo": "formato_invalido"}), 422
+
+    try:
+        image_array = _decodificar_imagen_validada(image_bytes)
         embeddings = DeepFace.represent(
             img_path=image_array,
             model_name=MODEL_NAME,
@@ -112,6 +175,8 @@ def identificar():
     candidatos = data["candidatos"]
     if not isinstance(candidatos, list):
         return jsonify({"identificado": False, "codigo": "formato_invalido"}), 422
+    if len(candidatos) > MAX_CANDIDATOS:
+        return jsonify({"identificado": False, "codigo": "payload_muy_grande"}), 413
     if not candidatos:
         return jsonify({
             "identificado": False,
@@ -135,7 +200,16 @@ def identificar():
             }), 200
 
     try:
-        image_array = decode_base64_image(data["imagen"])
+        image_bytes = _validar_imagen_base64(data["imagen"], formato)
+    except ImagenDemasiadoGrande:
+        return jsonify({"identificado": False, "codigo": "payload_muy_grande"}), 413
+    except ImagenDimensionesExcedidas:
+        return jsonify({"identificado": False, "codigo": "imagen_muy_grande"}), 422
+    except ImagenBase64Invalida:
+        return jsonify({"identificado": False, "codigo": "formato_invalido"}), 422
+
+    try:
+        image_array = _decodificar_imagen_validada(image_bytes)
         embeddings = DeepFace.represent(
             img_path=image_array,
             model_name=MODEL_NAME,
