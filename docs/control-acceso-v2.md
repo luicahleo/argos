@@ -12,7 +12,7 @@ contrato v2 que consumirá Trajano-Icarus (módulo Control de acceso). El spec
 completo y el plan ejecutable viven en Trajano-Icarus; este archivo solo resume
 las decisiones y enlaza al trabajo detallado.
 
-> **Actualizado con datos reales del agenteVPS (doc 50, 2026-09-30).**
+> **Actualizado con datos reales del agenteVPS (docs 50 y 52, 2026-09-30).**
 
 ## Decisiones arquitectónicas
 
@@ -39,6 +39,12 @@ las decisiones y enlaza al trabajo detallado.
 | Red | `trajano-shared-network`; puerto 5000 no publicado. |
 | Carga `/api/verify` | 20 llamadas totales (baterías agosto), cero producción desde entonces. |
 | PAD | Ningún modelo instalado; DeepFace FASNet (`anti_spoofing=True`) requiere pre-descargar pesos en la imagen. |
+| API key | `CONTROL_ACCESO_API_KEY` ya añadida a `.env.production` (chmod 600); valor por canal seguro. |
+| Memoria | `mem_limit=2g` confirmado; aplica en `deploy-production.sh` (`--memory 2g`). |
+| Logs | `logrotate` configurado en VPS; `--log-opt max-size=10m --log-opt max-file=5` pendiente en `deploy-production.sh`. |
+| Health check | Se recomienda quitar el chequeo `icarus_api` legacy de `/health` en v2. |
+| Staging | No existe; usar contenedor candidato aislado `argos-v2-candidate` antes del swap. |
+| Pesos PAD | Host de build (la VPS) tiene internet; pre-hornear durante el build del Dockerfile. |
 
 ## Endpoints
 
