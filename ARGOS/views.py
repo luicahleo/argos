@@ -89,19 +89,15 @@ def health_check():
     """Health check endpoint."""
     client_ip = request.remote_addr
     log_request("/health", client_ip=client_ip)
-    
-    # Check ICARUS.API connectivity
-    api_available = api_client.health_check()
-    
+
     response = {
         "status": "healthy",
         "service": "ARGOS Face Recognition",
         "model": MODEL_NAME,
-        "version": "1.0.0",
-        "icarus_api": "connected" if api_available else "disconnected"
+        "version": "1.0.0"
     }
-    
-    log_response("/health", True, f"API: {'connected' if api_available else 'disconnected'}")
+
+    log_response("/health", True, "ARGOS is healthy")
     return jsonify(response)
 
 

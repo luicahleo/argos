@@ -47,6 +47,33 @@ class ControlAccesoAuthTests(unittest.TestCase):
             headers={"Authorization": "Bearer test-key"},
         )
 
+    @patch("ARGOS.views.api_client.health_check")
+    def test_health_no_depende_de_icarus_api(self, health_check):
+        response = self.client.get("/health")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("icarus_api", response.get_json())
+        health_check.assert_not_called()
+
+    @patch("ARGOS.views.DeepFace.verify")
+    def test_endpoint_legacy_verify_conserva_respuesta_y_modelo(self, verify):
+        verify.return_value = {"distance": 0.2}
+        image = synthetic_image_payload()
+
+        response = self.client.post("/api/verify", json={"image1": image, "image2": image})
+
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(
+            set(data),
+            {"success", "verified", "distance", "threshold", "similarity_percent"},
+        )
+        self.assertTrue(data["success"])
+        self.assertTrue(data["verified"])
+        self.assertEqual(data["distance"], 0.2)
+        self.assertEqual(data["similarity_percent"], 80.0)
+        verify.assert_called_once()
+
     def identification_payload(self, probe_vector, candidate_vector):
         return {
             "imagen": synthetic_image_payload(),
