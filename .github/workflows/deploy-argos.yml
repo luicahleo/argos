@@ -26,6 +26,7 @@ jobs:
   deploy-argos:
     if: github.ref == 'refs/heads/master' && inputs.confirmar == 'PRODUCCION'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment: production
 
     steps:
@@ -50,11 +51,6 @@ jobs:
       with:
         ref: ${{ env.RELEASE_SHA }}
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
     - name: Configurar SSH
       uses: webfactory/ssh-agent@v0.9.0
       with:
@@ -72,65 +68,171 @@ jobs:
         ssh-keygen -F "$VPS_HOST" -f ~/.ssh/known_hosts >/dev/null
 
     - name: Crear estructura de directorios en VPS
+      env:
+        VPS_HOST: ${{ secrets.VPS_HOST }}
+        VPS_USER: ${{ secrets.VPS_USER }}
       run: |
-        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-          "mkdir -p /var/apps/icarus/microservicios/argos/{logs,ARGOS}"
+        set -Eeuo pipefail
+        ssh -o BatchMode=yes -o ConnectTimeout=15 "$VPS_USER@$VPS_HOST" \
+          "mkdir -p /var/apps/icarus/microservicios/argos/logs"
 
-    - name: Subir archivos al VPS
+    - name: Subir código al VPS
+      env:
+        VPS_HOST: ${{ secrets.VPS_HOST }}
+        VPS_USER: ${{ secrets.VPS_USER }}
       run: |
-        rsync -avz --delete \
+        set -Eeuo pipefail
+        rsync -az --delete --timeout=60 -e 'ssh -o BatchMode=yes -o ConnectTimeout=15' \
           --exclude='env/' \
           --exclude='env_new/' \
           --exclude='__pycache__/' \
           --exclude='*.pyc' \
           --exclude='.git/' \
-          --exclude='logs/*.log' \
-          ./ \
-          ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/apps/icarus/microservicios/argos/
+          --exclude='.env.production' \
+          --exclude='logs/' \
+          ./ "$VPS_USER@$VPS_HOST:/var/apps/icarus/microservicios/argos/"
 
-    - name: Build y deploy ARGOS en VPS
+    # Candidato aislado + batería de humo autenticada antes de tocar el
+    # contenedor en vivo, igual que el patrón ya validado en deploy.yml de
+    # Trajano-Icarus: nada de lo que hay en producción se toca hasta que el
+    # candidato responde bien. Rollback con la etiqueta "argos:previous" si
+    # algo falla después de promover.
+    - name: Desplegar candidato y promover con rollback
+      env:
+        VPS_HOST: ${{ secrets.VPS_HOST }}
+        VPS_USER: ${{ secrets.VPS_USER }}
       run: |
-        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
-          cd /var/apps/icarus/microservicios/argos &&
-          docker stop argos 2>/dev/null || true &&
-          docker rm argos 2>/dev/null || true &&
-          docker rmi argos:latest 2>/dev/null || true &&
-          echo "Preparing logs directory..." &&
-          mkdir -p logs &&
-          sudo chown -R 1000:1000 logs &&
-          sudo chmod -R 755 logs &&
-          echo "Building ARGOS Docker image..." &&
-          docker build --no-cache -f Dockerfile -t argos:latest . &&
-          echo "Starting ARGOS container..." &&
-          docker run -d \
-            --name argos \
-            --network trajano-shared-network \
+        set -Eeuo pipefail
+        timeout 15m ssh -o BatchMode=yes -o ConnectTimeout=15 "$VPS_USER@$VPS_HOST" \
+          "bash -s -- '${RELEASE_SHA}'" <<'ENDSSH'
+        set -Eeuo pipefail
+        cd /var/apps/icarus/microservicios/argos
+
+        sha="$1"
+        readonly CANDIDATE_CONTAINER="argos-candidate-${sha:0:12}"
+        readonly PREVIOUS_IMAGE="argos:previous"
+        readonly CANDIDATE_IMAGE="argos:${sha:0:12}"
+        readonly NETWORK="trajano-shared-network"
+        readonly ENV_FILE=".env.production"
+        readonly LOG_DIR="$(pwd)/logs"
+        SWAP_STARTED=0
+
+        rollback_on_error() {
+            local exit_code="${1:-$?}"
+            trap - ERR
+            set +e
+
+            docker rm -f "$CANDIDATE_CONTAINER" >/dev/null 2>&1
+
+            if [[ "$SWAP_STARTED" == "1" ]]; then
+                echo "El swap del candidato falló; restaurando el contenedor anterior de ARGOS."
+                docker rm -f argos >/dev/null 2>&1
+                if docker image inspect "$PREVIOUS_IMAGE" >/dev/null 2>&1; then
+                    docker run -d \
+                        --name argos \
+                        --network "$NETWORK" \
+                        --restart unless-stopped \
+                        --memory 2g \
+                        --log-driver json-file \
+                        --log-opt max-size=10m \
+                        --log-opt max-file=5 \
+                        --env-file "$ENV_FILE" \
+                        -v "$LOG_DIR:/app/logs" \
+                        "$PREVIOUS_IMAGE" >/dev/null
+                fi
+            fi
+
+            exit "$exit_code"
+        }
+        trap rollback_on_error ERR
+        trap 'rollback_on_error 130' INT
+        trap 'rollback_on_error 143' TERM
+
+        if [[ ! -r "$ENV_FILE" ]] || ! grep -q '^CONTROL_ACCESO_API_KEY=.' "$ENV_FILE"; then
+            echo "El fichero de entorno de producción o la API key requerida no están disponibles."
+            exit 1
+        fi
+        if ! docker network inspect "$NETWORK" >/dev/null 2>&1; then
+            echo "La red Docker compartida requerida no está disponible."
+            exit 1
+        fi
+
+        docker build -f Dockerfile -t "$CANDIDATE_IMAGE" .
+        if docker image inspect argos:latest >/dev/null 2>&1; then
+            docker tag argos:latest "$PREVIOUS_IMAGE"
+        fi
+
+        docker rm -f "$CANDIDATE_CONTAINER" >/dev/null 2>&1 || true
+        docker run -d \
+            --name "$CANDIDATE_CONTAINER" \
+            --network "$NETWORK" \
             --restart unless-stopped \
-            --env-file .env.production \
-            -v $(pwd)/logs:/app/logs \
-            argos:latest &&
-          echo "Waiting 120 seconds for container initialization..." &&
-          sleep 120 &&
-          echo "Starting health checks..." &&
-          for i in {1..120}; do
-            sleep 2
-            HTTP_CODE=$(docker exec argos curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health 2>/dev/null || echo "000")
-            echo "DEBUG: HTTP_CODE = [$HTTP_CODE] en intento $i"
-            if [ "$HTTP_CODE" = "200" ]; then
-              echo "ARGOS is healthy! (HTTP $HTTP_CODE)" &&
-              break
+            --memory 2g \
+            --log-driver json-file \
+            --log-opt max-size=10m \
+            --log-opt max-file=5 \
+            --env-file "$ENV_FILE" \
+            -v "$LOG_DIR:/app/logs" \
+            "$CANDIDATE_IMAGE" >/dev/null
+
+        echo "Esperando salud del candidato y rutas autenticadas del contrato..."
+        for attempt in $(seq 1 24); do
+            if docker exec "$CANDIDATE_CONTAINER" curl -fsS \
+                http://127.0.0.1:5000/health >/dev/null 2>&1; then
+                break
             fi
-            if [ $i -eq 120 ]; then
-              echo "ARGOS failed to become healthy after 6 minutes" &&
-              docker logs argos --tail 100 &&
-              exit 1
+            if [[ "$attempt" == "24" ]]; then
+                echo "El health check del candidato falló."
+                rollback_on_error 1
             fi
-            echo "Attempt $i/120: Waiting for ARGOS..."
-          done &&
-          echo "ARGOS Status:" &&
-          docker ps | grep argos &&
-          echo "ARGOS deployed successfully!"
-        '
+            sleep 5
+        done
+
+        candidate_status() {
+            local method="$1"
+            local route="$2"
+            local expected="$3"
+            local actual
+
+            actual=$(docker exec "$CANDIDATE_CONTAINER" sh -c \
+                'curl -sS -o /dev/null -w "%{http_code}" -X "$1" -H "Authorization: Bearer $CONTROL_ACCESO_API_KEY" "http://127.0.0.1:5000$2"' \
+                sh "$method" "$route")
+            if [[ "$actual" != "$expected" ]]; then
+                echo "La batería de humo autenticada del candidato falló: $route (HTTP $actual)."
+                return 1
+            fi
+        }
+
+        candidate_status POST /api/verify 400
+        candidate_status GET /api/v2/control-acceso/capacidades 200
+        candidate_status POST /api/v2/control-acceso/extracciones 400
+        candidate_status POST /api/v2/control-acceso/identificaciones 400
+
+        # El candidato está sano y las rutas v2 autenticadas respondieron lo
+        # esperado. Solo ahora se para el contenedor viejo y se asigna el tag
+        # de producción.
+        SWAP_STARTED=1
+        if docker container inspect argos >/dev/null 2>&1; then
+            docker stop argos >/dev/null
+            docker rm argos >/dev/null
+        fi
+        docker rename "$CANDIDATE_CONTAINER" argos
+        docker tag "$CANDIDATE_IMAGE" argos:latest
+
+        for attempt in $(seq 1 12); do
+            if docker exec argos curl -fsS http://127.0.0.1:5000/health >/dev/null 2>&1; then
+                break
+            fi
+            if [[ "$attempt" == "12" ]]; then
+                echo "El health check del contenedor de producción falló tras el swap."
+                rollback_on_error 1
+            fi
+            sleep 5
+        done
+
+        trap - ERR INT TERM
+        echo "El candidato de ARGOS pasó la batería de humo y ya corre como producción."
+        ENDSSH
 
     - name: Notification on success
       if: success()
