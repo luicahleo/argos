@@ -1,0 +1,4 @@
+# Los scripts bash viajan por SSH a la VPS (Linux) via heredoc; un checkout
+# en Windows con core.autocrlf=true los convertiria a CRLF y rompe tanto el
+# shebang como el contenido de los heredocs remotos.
+*.sh text eol=lf
